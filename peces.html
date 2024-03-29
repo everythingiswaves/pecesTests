@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
+    <title>Everything is waves - Peces</title>
+</head>
+<style>
+    p,
+    input,
+    button,
+    label {
+        margin-left: 10px !important;
+
+    }
+
+    label {
+        margin-left: 0;
+    }
+</style>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.min.js"></script>
+    <div>
+        <script>
+            // setup the drawing
+            let x = [];
+            let y = [];
+            let r = [];
+            let g = [];
+            let b = [];
+            let c = [];
+            let c2 = []; //par alas imagenes
+            let emoji=0
+            let speed = [];
+
+
+            let Original = ["#156790", "#29DBBA", "#E57A44", "#EAF381", "#EA003B"];
+            let Other = ["#db5461", "#686963", "#8aa29e", "#3d5467", "#f1edee"];
+            let Other2 = ["#0c0a3e", "#7b1e7a", "#b33f62", "#f9564f", "#f3c677"];
+            let Custom = ["#EC0B43", "#58355E", "#7AE7C7", "#D6FFB7", "#FFF689"];
+            let imagenes = []
+            let palleteNames = ["Original", "Other", "Other2", "Custom", "Emojis"];
+
+            let cantidadSlider;
+            let sizeSlider;
+            let backgroundSlider;
+            let rotationSlider;
+            let strokeCheckbox;
+            let backgroundColor;
+            let waveCheckbox;
+            let downCheckbox;
+            let palleteSel;
+
+            let randomize;
+
+            function preload() {
+                imagenes[0] = loadImage('1.png');
+                imagenes[1] = loadImage('2.png');
+                imagenes[2] = loadImage('3.png');
+                imagenes[3] = loadImage('4.png');
+                imagenes[4] = loadImage('5.png');
+            }
+
+            function setup() {
+                createCanvas(1270, 720);
+                background(0);
+
+                cantidadSlider = createSlider(1, 2000, 300);
+                cantidadSlider.id("cantidadSlider");
+                cantidadSlider.class("textos");
+                cantidadSlider.position(width, 20); // x and y
+                cantidadSlider.size(300, 40); // width and height
+                cantidad = document.getElementById("cantidadSlider").max;
+
+                let quantityP = createP("Quantity");
+                quantityP.class("textos");
+                quantityP.style("font-size", "30px");
+                quantityP.style("font-family", "Calibri");
+                quantityP.style("margin", "0");
+                quantityP.position(width, 0);
+
+                sizeSlider = createSlider(1, 108, 43);
+                sizeSlider.id("sizeSlider");
+                sizeSlider.class("textos");
+                sizeSlider.position(width, 80); // x and y
+                sizeSlider.size(300, 40); // width and height
+                let sizeP = createP("Size");
+                sizeP.class("textos");
+                sizeP.style("font-size", "30px");
+                sizeP.style("font-family", "Calibri");
+                sizeP.style("margin", "0");
+                sizeP.position(width, 60);
+
+                backgroundSlider = createSlider(0, 150, 75);
+                backgroundSlider.id("backgroundSlider");
+                backgroundSlider.position(width, 140); // x and y
+                backgroundSlider.size(300, 40); // width and height
+                let backgroundP = createP("Background alpha");
+                backgroundP.style("font-size", "30px");
+                backgroundP.style("font-family", "Calibri");
+                backgroundP.style("margin", "0");
+                backgroundP.position(width, 120);
+
+                rotationSlider = createSlider(0, 8, 4);
+                rotationSlider.id("rotationSlider");
+                rotationSlider.position(width, 200); // x and y
+                rotationSlider.size(300, 40); // width and height
+                let roatationP = createP("Rotation Speed");
+                roatationP.style("font-size", "30px");
+                roatationP.style("font-family", "Calibri");
+                roatationP.style("margin", "0");
+                roatationP.position(width, 180);
+
+                backgroundColor = createColorPicker("#000000");
+                backgroundColor.position(width + 2, 275);
+                backgroundColor.size(300, 30);
+                let backgroundColorP = createP("Background Color");
+                backgroundColorP.style("font-size", "30px");
+                backgroundColorP.style("font-family", "Calibri");
+                backgroundColorP.style("margin", "0");
+                backgroundColorP.position(width, 240);
+
+                strokeCheckbox = createCheckbox("Stroke", 0);
+                strokeCheckbox.position(width, 320);
+                strokeCheckbox.style("font-family", "Calibri");
+                strokeCheckbox.style("font-size", "30px");
+                const box = strokeCheckbox.elt.getElementsByTagName("input")[0];
+                box.style.width = "40px";
+                box.style.height = "40px";
+                box.style.margin = "0px";
+
+                waveCheckbox = createCheckbox("Wave", 0);
+                waveCheckbox.position(width + 150, 320);
+                waveCheckbox.style("font-family", "Calibri");
+                waveCheckbox.style("font-size", "30px");
+                const box2 = waveCheckbox.elt.getElementsByTagName("input")[0];
+                box2.style.width = "40px";
+                box2.style.height = "40px";
+                box2.style.margin = "0px";
+
+                downCheckbox = createCheckbox("Down", 0);
+                downCheckbox.position(width, 370);
+                downCheckbox.style("font-family", "Calibri");
+                downCheckbox.style("font-size", "30px");
+                const box3 = downCheckbox.elt.getElementsByTagName("input")[0];
+                box3.style.width = "40px";
+                box3.style.height = "40px";
+                box3.style.margin = "0px";
+
+                palleteSel = createSelect();
+                palleteSel.id("palleteSel")
+                palleteSel.position(width, 420);
+                palleteNames.forEach(element => {
+                    palleteSel.option(element);
+                });
+                palleteSel.changed(palleteChanged);
+                palleteSel.style("font-family", "Calibri");
+                palleteSel.style("font-size", "30px");
+                palleteSel.style("margin-left", "9px");
+                palleteSel.selected('Original');
+
+                let customPalleteP = createP("Custom Palette Picker");
+                customPalleteP.style("font-size", "30px");
+                customPalleteP.style("font-family", "Calibri");
+                customPalleteP.style("margin", "0");
+                customPalleteP.position(width, 470);
+
+                customCols = []
+                for (let x = 0; x < 5; x++) {
+                    customCols[x] = createColorPicker(Custom[x]);
+                    customCols[x].id("customCols" + x.toString())
+                    customCols[x].position(width + 60 * x, 510);
+                }
+
+                button = createButton("Randomize");
+                button.position(width, 550);
+                button.size(150, 50);
+                button.style("font-size", "23px");
+                button.mousePressed(randomizeSliders);
+
+                let signature = createP("~Everything is waves - 2021~");
+                signature.style("font-size", "30px");
+                signature.style("font-family", "Calibri");
+                signature.style("margin", "0");
+                signature.position(width, 600);
+
+                for (let i = 0; i < cantidad; i++) {
+                    x[i] = random(0, width);
+                    y[i] = random(0, width);
+                    speed[i] = random(40, 130);
+                    /*r[i] = random(0,255)
+                          g[i] = random(0,255)
+                          b[i] = random(0,255)*/
+                    c[i] = int(random(0, 5));
+                    c2[i] = imagenes[int(random(0, 5))];
+                }
+                rectMode(CENTER);
+                imageMode(CENTER);
+            }
+
+            function draw() {
+                background(
+                    red(backgroundColor.color()),
+                    green(backgroundColor.color()),
+                    blue(backgroundColor.color()),
+                    backgroundSlider.value()
+                );
+
+                cantidad = cantidadSlider.value();
+                size = sizeSlider.value();
+                rotationSpeed = rotationSlider.value();
+
+                if (strokeCheckbox.checked()) {
+                    stroke(0);
+                } else {
+                    noStroke();
+                }
+
+                //stroke(255)
+                for (let i = 0; i < cantidad; i++) {
+                    push();
+                    if (downCheckbox.checked()) {
+                        if (waveCheckbox.checked()) {
+                            translate(
+                                y[i] + sin(frameCount / speed[i]) * speed[i],
+                                x[i] + tan(frameCount / speed[i]) * 90
+                            );
+                        } else {
+                            translate(y[i], x[i] + tan(frameCount / speed[i]) * 90);
+                        }
+                    } else {
+                        if (waveCheckbox.checked()) {
+                            translate(
+                                x[i] + tan(frameCount / speed[i]) * 90,
+                                y[i] + sin(frameCount / speed[i]) * speed[i]
+                            );
+                        } else {
+                            translate(x[i] + tan(frameCount / speed[i]) * 90, y[i]);
+                        }
+                    }
+
+                    //rotateX(frameCount/speed[i]*4)
+                    rotate(x[i] + tan(frameCount / speed[i]) * rotationSpeed);
+
+                    //fill(r[i],g[i],b[i])
+                    
+                    if (emoji==0){
+                        fill(palleteChanged()[c[i]]);
+                        square(0, 0, size);
+                    }else{
+                        image(c2[i], 0, 0,size,size);
+                    }
+                    pop();
+                }
+            }
+
+            function randomizeSliders() {
+                cantidadSlider.value(
+                    int(
+                        random(
+                            document.getElementById("cantidadSlider").min,
+                            document.getElementById("cantidadSlider").max
+                        )
+                    )
+                );
+
+                sizeSlider.value(
+                    int(
+                        random(
+                            document.getElementById("sizeSlider").min,
+                            document.getElementById("sizeSlider").max
+                        )
+                    )
+                );
+                backgroundSlider.value(
+                    int(
+                        random(
+                            document.getElementById("backgroundSlider").min,
+                            document.getElementById("backgroundSlider").max
+                        )
+                    )
+                );
+                rotationSlider.value(
+                    int(
+                        random(
+                            document.getElementById("rotationSlider").min,
+                            document.getElementById("rotationSlider").max
+                        )
+                    )
+                );
+                strokeCheckbox.checked(random([true, false]));
+                waveCheckbox.checked(random([true, false]));
+                downCheckbox.checked(random([true, false]));
+                palleteSel.selected(palleteNames[int(random(0, palleteNames.length))]);
+                if (document.getElementById("palleteSel").value == "Emojis"){
+                    emoji=1;
+                }else{
+                    emoji=0;
+                }
+            }
+
+            function palleteChanged() {
+                switch (palleteSel.value()) {
+                    case "Original":
+                        emoji=0
+                        return Original;
+                        break;
+                    case "Other":
+                        emoji=0
+                        return Other;
+                        break;
+                    case "Other2":
+                        emoji=0
+                        return Other2;
+                        break;
+                    case "Custom":
+                        emoji=0
+                        customPallete()
+                        return Custom;
+                        break;
+                    case "Emojis":
+                        emoji=1
+                        break;
+                }
+            }
+
+            function customPallete() {
+                for (let i = 0; i < 5; i++) {
+                    Custom[i] = document.getElementById("customCols" + i.toString()).value
+                }
+            }
+        </script>
+    </div>
+</body>
+
+</html>
